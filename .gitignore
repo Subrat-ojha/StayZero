@@ -33,6 +33,9 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
+# Local AI research results contain generated external-source data
+/data/researched-stays.json
+
 # vercel
 .vercel
 
