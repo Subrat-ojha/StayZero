@@ -1,6 +1,6 @@
 # StayZero
 
-StayZero helps travellers find documented opportunities to stay without a nightly room rate. Enter any destination; Bangalore and Hyderabad are suggestions. Results show provider pathways and, when configured, AI-found public opportunities with source links. Availability and acceptance must be confirmed with the source.
+StayZero helps travellers find documented opportunities to stay without a nightly room rate. Enter any destination; Bangalore and Hyderabad are suggestions. Results show provider pathways, six source-linked discovery candidates for Bengaluru and Hyderabad, and AI-found public opportunities when configured. Candidates are unverified; availability and acceptance must be confirmed with the source.
 
 ## Run locally
 
@@ -9,7 +9,7 @@ npm install
 npm run dev
 ```
 
-Open `http://localhost:3000`. `/api/rank` returns destination-relevant provider pathways and deterministic scores for any curated stays with `ranked: "heuristic"`. When a RouterPlus key is configured, each search also researches public sources for that destination. Local development saves candidates to an ignored JSON file; Netlify can save to persistent Netlify Blobs. The optional RouterPlus settings go in a local, ignored `.env.local`:
+Open `http://localhost:3000`. `/api/rank` returns destination-relevant provider pathways and deterministic scores for any curated stays with `ranked: "heuristic"`. The built-in research set includes six source candidates for Bengaluru and Hyderabad. For any other destination, configure RouterPlus to run the public web search agent. Local development saves new candidates to an ignored JSON file; Netlify saves them to persistent Netlify Blobs. Create a local, ignored `.env.local` in the project root and add:
 
 ```text
 ROUTERPLUS_API_KEY=<your key>
@@ -24,9 +24,9 @@ The checked-in `netlify.toml` uses `npm run build` and `.next`; `.nvmrc` selects
 
 ## Curate the seed
 
-`src/lib/seed.ts` starts empty because the previous records were placeholders with `example.com` links. The live MVP uses outbound source gateways from `src/lib/provider-adapters.ts`; see [ACCESS_RESEARCH.md](ACCESS_RESEARCH.md) for the sourcing decision. [SEED_REVIEW.md](SEED_REVIEW.md) is a research queue, not verified listings. A person should open each source, confirm the exact stay terms and fees, and record the actual check date and reviewer in `verificationNote` before adding an `Opportunity`. A platform gateway should claim only that the platform offers a route to request a stay in that city, not that a particular host will accept the traveller.
+`src/lib/seed.ts` starts empty because the previous records were placeholders with `example.com` links. The live MVP shows source-linked, unverified research candidates from [research-baseline.ts](src/lib/research-baseline.ts), plus destination-specific findings from the research agent when configured. See [ACCESS_RESEARCH.md](ACCESS_RESEARCH.md) for the sourcing decision. [SEED_REVIEW.md](SEED_REVIEW.md) remains a review queue. A human should open each candidate's source, confirm the exact stay terms and fees, and record the actual check date and reviewer in `verificationNote` before adding an `Opportunity` to the curated seed. A platform gateway should claim only that the platform offers a route to request a stay in that city, not that a particular host will accept the traveller.
 
-The target is at least 12 records, with at least eight in Bangalore and four in Hyderabad. Run `npm run build` and check `/api/health` for `seedErrors: []` after curation. Until then the app intentionally shows an empty state and is not ready for a public demo.
+The future curation target is at least 12 records, with at least eight in Bangalore and four in Hyderabad. The six research candidates are shown separately with an unverified label and do not count toward that target. Run `npm run build` and check `/api/health` for `seedErrors: []` after curation.
 
 ## API behavior
 

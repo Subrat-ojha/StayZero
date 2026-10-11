@@ -3,7 +3,7 @@ import type { StoredDiscovery } from "@/lib/seed";
 export function LiveResultCard({ result }: { result: StoredDiscovery }) {
   return (
     <article className="live-card">
-      <span className="live-badge">Unverified · AI web result, check the source</span>
+      <span className="live-badge">Unverified candidate · check the source</span>
       <h3>{result.name}</h3>
       <p className="muted-small">Saved {new Date(result.discoveredAt).toLocaleDateString()}</p>
       <p>{result.description}</p>

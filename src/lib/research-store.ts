@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { getStore } from "@netlify/blobs";
 import { normalizeLocation } from "@/lib/location";
 import { storedDiscoverySchema, type StoredDiscovery } from "@/lib/seed";
+import { RESEARCH_BASELINE } from "@/lib/research-baseline";
 
 const DATA_FILE = join(process.cwd(), "data", "researched-stays.json");
 const MAX_SAVED_RESULTS = 5_000;
@@ -60,14 +61,15 @@ async function readResearchDataset(): Promise<ResearchDataset> {
 }
 
 export async function getResearchForLocation(destination: string): Promise<StoredDiscovery[]> {
+  const key = normalizeLocation(destination);
+  const baseline = RESEARCH_BASELINE.filter((item) => normalizeLocation(item.city) === key);
   if (shouldUseNetlifyBlobs()) {
     const dataset = await readNetlifyLocation(destination);
-    return dataset.results.sort((a, b) => b.discoveredAt.localeCompare(a.discoveredAt));
+    return mergeResults(baseline, dataset.results).sort((a, b) => b.discoveredAt.localeCompare(a.discoveredAt));
   }
-  const key = normalizeLocation(destination);
   const dataset = await readResearchDataset();
-  return dataset.results
-    .filter((item) => normalizeLocation(item.city) === key)
+  const saved = dataset.results.filter((item) => normalizeLocation(item.city) === key);
+  return mergeResults(baseline, saved)
     .sort((a, b) => b.discoveredAt.localeCompare(a.discoveredAt));
 }
 
