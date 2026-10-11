@@ -102,6 +102,7 @@ export default function Home() {
       setLiveResults(unique);
       setLiveAt(data.at ?? unique[0]?.discoveredAt ?? "");
       if (data.error) setLiveError(unique.length > 0 ? `Live refresh did not finish: ${data.error} Previously saved leads are still shown; check the source before relying on any details.` : data.error);
+      else if (data.saved === false) setLiveError("Research results loaded, but Netlify did not confirm saving new entries. Check the source and refresh later to see whether they persist.");
     } catch (cause) {
       const reason = cause instanceof Error ? cause.message : "the request did not complete";
       setLiveError(`Live web research failed: ${reason} Saved source leads are still shown below; open a source or retry the search.`);
@@ -163,7 +164,7 @@ export default function Home() {
               {liveLoading && <p className="muted-small" role="status">Searching public sources for {city}…</p>}
               {liveError && <p className="notice" role="status">{liveError}</p>}
               {liveAt && <p className="muted-small">Most recent research: {new Date(liveAt).toLocaleString()}</p>}
-              {liveResults.length > 0 && <p className="muted-small">{liveResults.length} saved result{liveResults.length === 1 ? "" : "s"} for this destination. Check every source before relying on a result.</p>}
+              {liveResults.length > 0 && <p className="muted-small">{liveResults.length} source lead{liveResults.length === 1 ? "" : "s"} for this destination. Availability and current terms must be confirmed with each source.</p>}
               <div className="live-list">{liveResults.filter((result) => preference === "any" || result.category === preference).map((result) => <LiveResultCard key={`${result.name}-${result.sourceUrl}`} result={result} />)}</div>
             </div>
           </>}

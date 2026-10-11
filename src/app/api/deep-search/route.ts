@@ -13,14 +13,15 @@ const requestSchema = z.object({
 });
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 const STORAGE_TIMEOUT_MS = 2_000;
+const STORAGE_SAVE_TIMEOUT_MS = 8_000;
 
-async function withStorageTimeout<T>(operation: Promise<T>): Promise<T> {
+async function withStorageTimeout<T>(operation: Promise<T>, timeoutMs = STORAGE_TIMEOUT_MS): Promise<T> {
   let timer: ReturnType<typeof setTimeout> | undefined;
   try {
     return await Promise.race([
       operation,
       new Promise<never>((_, reject) => {
-        timer = setTimeout(() => reject(new Error("Research storage timed out")), STORAGE_TIMEOUT_MS);
+        timer = setTimeout(() => reject(new Error("Research storage timed out")), timeoutMs);
       }),
     ]);
   } finally {
@@ -232,7 +233,7 @@ export async function POST(request: Request) {
     }).slice(0, 6);
     let persisted = false;
     try {
-      await withStorageTimeout(saveResearchResults(city, results, discoveredAt));
+      await withStorageTimeout(saveResearchResults(city, results, discoveredAt), STORAGE_SAVE_TIMEOUT_MS);
       persisted = true;
     } catch (error) {
       console.error("[StayZero] Could not persist new research results.", error);
