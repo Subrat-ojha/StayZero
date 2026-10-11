@@ -35,8 +35,8 @@ function parseLocationDataset(value: unknown): LocationDataset {
 }
 
 async function readNetlifyLocation(destination: string): Promise<LocationDataset> {
-  const store = getStore({ name: "stayzero-research", consistency: "strong" });
-  const saved = await store.get(netlifyBlobKey(destination), { type: "json", consistency: "strong" });
+  const store = getStore("stayzero-research");
+  const saved = await store.get(netlifyBlobKey(destination), { type: "json" });
   return saved === null ? { results: [] } : parseLocationDataset(saved);
 }
 
@@ -84,7 +84,7 @@ export function saveResearchResults(destination: string, results: StoredDiscover
     if (shouldUseNetlifyBlobs()) {
       const dataset = await readNetlifyLocation(destination);
       const next = mergeResults(dataset.results, results);
-      const store = getStore({ name: "stayzero-research", consistency: "strong" });
+      const store = getStore("stayzero-research");
       await store.setJSON(netlifyBlobKey(destination), { results: next.slice(-MAX_SAVED_RESULTS), lastSearchedAt: searchedAt });
       return;
     }
