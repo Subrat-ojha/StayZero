@@ -6,6 +6,8 @@ import { LiveResultCard } from "@/components/LiveResultCard";
 import { OpportunityCard, type RankedOpportunity } from "@/components/OpportunityCard";
 import { ProviderGatewayCard } from "@/components/ProviderGatewayCard";
 import type { ProviderGateway } from "@/lib/provider-adapters";
+import { normalizeLocation } from "@/lib/location";
+import { RESEARCH_BASELINE } from "@/lib/research-baseline";
 import { CATEGORIES, CITIES, OFFER_SKILLS, type Category, type OfferSkill, type StoredDiscovery } from "@/lib/seed";
 
 const CATEGORY_LABELS: Record<Category, string> = {
@@ -72,6 +74,9 @@ export default function Home() {
       const ranked = (await result.json()) as RankResponse;
       setResponse(ranked);
       setSearched(true);
+      const baseline = RESEARCH_BASELINE.filter((candidate) => normalizeLocation(candidate.city) === normalizeLocation(city));
+      setLiveResults(baseline);
+      setLiveAt(baseline[0]?.discoveredAt ?? "");
       await deepSearch(false, city);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Search is unavailable right now.");
@@ -89,13 +94,17 @@ export default function Home() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ city: destination, refresh }),
       });
-      if (!result.ok) throw new Error("Deep search is unavailable right now.");
+      if (!result.ok) throw new Error(`Research endpoint returned HTTP ${result.status}.`);
       const data = (await result.json()) as { results: StoredDiscovery[]; at?: string; error?: string; saved?: boolean };
-      setLiveResults(data.results);
-      setLiveAt(data.at ?? "");
+      const baseline = RESEARCH_BASELINE.filter((candidate) => normalizeLocation(candidate.city) === normalizeLocation(destination));
+      const merged = [...baseline, ...data.results];
+      const unique = [...new Map(merged.map((candidate) => [`${candidate.sourceUrl}|${candidate.name.toLocaleLowerCase()}`, candidate])).values()];
+      setLiveResults(unique);
+      setLiveAt(data.at ?? unique[0]?.discoveredAt ?? "");
       if (data.error) setLiveError(data.error);
-    } catch {
-      setLiveError("Deep search is unavailable right now.");
+    } catch (cause) {
+      const reason = cause instanceof Error ? cause.message : "the request did not complete";
+      setLiveError(`Live web research failed: ${reason} Saved source leads are still shown below; open a source or retry the search.`);
     } finally {
       setLiveLoading(false);
     }
@@ -155,7 +164,7 @@ export default function Home() {
               {liveError && <p className="notice" role="status">{liveError}</p>}
               {liveAt && <p className="muted-small">Most recent research: {new Date(liveAt).toLocaleString()}</p>}
               {liveResults.length > 0 && <p className="muted-small">{liveResults.length} saved result{liveResults.length === 1 ? "" : "s"} for this destination. Check every source before relying on a result.</p>}
-              <div className="live-list">{liveResults.map((result) => <LiveResultCard key={`${result.name}-${result.sourceUrl}`} result={result} />)}</div>
+              <div className="live-list">{liveResults.filter((result) => preference === "any" || result.category === preference).map((result) => <LiveResultCard key={`${result.name}-${result.sourceUrl}`} result={result} />)}</div>
             </div>
           </>}
         </section>
