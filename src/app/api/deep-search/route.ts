@@ -161,9 +161,9 @@ export async function POST(request: Request) {
       clearTimeout(timeout);
     }
     const lastText = message.content.filter((block) => block.type === "text").map((block) => block.text).join("\n");
-    if (!lastText.trim()) throw new Error("No results");
     let candidates: unknown[];
     try {
+      if (!lastText.trim()) throw new Error("The search returned tool results without a text summary");
       candidates = parseCandidates(lastText);
     } catch {
       // Search-enabled replies can summarize findings instead of honoring the
