@@ -166,57 +166,27 @@ export async function POST(request: Request) {
       if (!lastText.trim()) throw new Error("The search returned tool results without a text summary");
       candidates = parseCandidates(lastText);
     } catch {
-      // Search-enabled replies can summarize findings instead of honoring the
-      // JSON-only request. Use a forced structured tool on a tool-free second
-      // pass so only those findings are serialized and no new search is run.
+      // Search-enabled replies can return only server-tool result blocks, or
+      // summarize findings instead of honoring the JSON-only request. RouterPlus
+      // does not support forced tool_choice for this model, so format findings
+      // as plain JSON text in a second pass without invoking more search.
       const formatted = await client.messages.create(
         {
           model: DEEP_SEARCH_MODEL,
-          max_tokens: 1600,
+          max_tokens: 2000,
           messages: [
             { role: "assistant", content: message.content },
             {
               role: "user",
-              content: `Extract only the public accommodation opportunities already described in your previous message. Use only facts and source URLs from that message. Do not add sources or details. Omit entries without a source URL. Return an empty candidates list if nothing qualifies.`,
+              content: `Extract only the public accommodation opportunities already described in your previous message. Use only facts and source URLs from that message. Do not add sources or details. Omit entries without a source URL. Return only a strict JSON array (no markdown or prose), with each object containing name, category (free-stay, hospitality-exchange, volunteer-exchange, or home-exchange), description, costSummary, requirementsSummary, sourceUrl, and sourceName. Return [] if nothing qualifies.`,
             },
           ],
-          tools: [{
-            name: "return_research_candidates",
-            description: "Return source-backed, unverified public accommodation opportunities from the search findings.",
-            input_schema: {
-              type: "object",
-              properties: {
-                candidates: {
-                  type: "array",
-                  items: {
-                    type: "object",
-                    properties: {
-                      name: { type: "string" },
-                      category: { type: "string", enum: ["free-stay", "hospitality-exchange", "volunteer-exchange", "home-exchange"] },
-                      description: { type: "string" },
-                      costSummary: { type: "string" },
-                      requirementsSummary: { type: "string" },
-                      sourceUrl: { type: "string" },
-                      sourceName: { type: "string" },
-                    },
-                    required: ["name", "category", "description", "costSummary", "requirementsSummary", "sourceUrl", "sourceName"],
-                  },
-                },
-              },
-              required: ["candidates"],
-            },
-          }],
-          tool_choice: { type: "tool", name: "return_research_candidates" },
         },
         { signal: controller.signal, maxRetries: 0 },
       );
-      const structured = formatted.content.find(
-        (block) => block.type === "tool_use" && block.name === "return_research_candidates",
-      );
-      if (!structured || structured.type !== "tool_use" || typeof structured.input !== "object" || structured.input === null || !("candidates" in structured.input) || !Array.isArray(structured.input.candidates)) {
-        throw new Error("RouterPlus did not return structured research candidates");
-      }
-      candidates = structured.input.candidates;
+      const formattedText = formatted.content.filter((block) => block.type === "text").map((block) => block.text).join("\n");
+      if (!formattedText.trim()) throw new Error("RouterPlus returned no formatted research candidates");
+      candidates = parseCandidates(formattedText);
     }
     const seen = new Set<string>();
     const seedHosts = new Set(SEED.map((item) => new URL(item.evidence.sourceUrl).hostname));
