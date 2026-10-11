@@ -1,6 +1,6 @@
 # StayZero
 
-StayZero helps travellers find documented opportunities to stay without a nightly room rate. Enter any destination; Bangalore and Hyderabad are suggestions. Results show provider pathways, six source-linked discovery candidates for Bengaluru and Hyderabad, and AI-found public opportunities when configured. Candidates are unverified; availability and acceptance must be confirmed with the source.
+StayZero helps travellers find documented opportunities to stay without a nightly room rate. The destination picker suggests 90+ popular cities worldwide, and also accepts any place typed by the traveller. Results show provider pathways, six source-linked discovery candidates for Bengaluru and Hyderabad, and AI-found public opportunities when configured. Candidates are unverified; availability and acceptance must be confirmed with the source.
 
 ## Run locally
 

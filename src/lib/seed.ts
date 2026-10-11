@@ -1,6 +1,26 @@
 ﻿import { z } from "zod";
 
-export const CITIES = ["hyderabad", "bangalore"] as const;
+// Popular destination suggestions only; the search also accepts any typed place.
+export const CITIES = [
+  "Bengaluru, India", "Hyderabad, India", "Mumbai, India", "New Delhi, India", "Kolkata, India",
+  "Chennai, India", "Pune, India", "Mysuru, India", "Mangaluru, India", "Kochi, India",
+  "Thiruvananthapuram, India", "Kozhikode, India", "Coimbatore, India", "Madurai, India", "Tiruchirappalli, India",
+  "Jaipur, India", "Udaipur, India", "Jodhpur, India", "Jaisalmer, India", "Agra, India",
+  "Varanasi, India", "Lucknow, India", "Rishikesh, India", "Dehradun, India", "Shimla, India",
+  "Manali, India", "Dharamshala, India", "Amritsar, India", "Chandigarh, India", "Ahmedabad, India",
+  "Surat, India", "Vadodara, India", "Indore, India", "Bhopal, India", "Nagpur, India",
+  "Nashik, India", "Aurangabad, India", "Visakhapatnam, India", "Vijayawada, India", "Tirupati, India",
+  "Bhubaneswar, India", "Patna, India", "Ranchi, India", "Guwahati, India", "Shillong, India",
+  "Gangtok, India", "Darjeeling, India", "Panaji, India", "Hampi, India", "Ooty, India",
+  "Alappuzha, India", "Puducherry, India", "London, United Kingdom", "Paris, France", "Lisbon, Portugal",
+  "Rome, Italy", "Barcelona, Spain", "Amsterdam, Netherlands", "Berlin, Germany", "Prague, Czechia",
+  "Vienna, Austria", "Athens, Greece", "Istanbul, Türkiye", "Dubai, United Arab Emirates", "Bangkok, Thailand",
+  "Singapore, Singapore", "Kuala Lumpur, Malaysia", "Hanoi, Vietnam", "Ho Chi Minh City, Vietnam", "Bali, Indonesia",
+  "Tokyo, Japan", "Kyoto, Japan", "Seoul, South Korea", "Taipei, Taiwan", "Hong Kong, China",
+  "Sydney, Australia", "Melbourne, Australia", "Auckland, New Zealand", "Cape Town, South Africa", "Nairobi, Kenya",
+  "Cairo, Egypt", "New York, United States", "San Francisco, United States", "Los Angeles, United States", "Toronto, Canada",
+  "Vancouver, Canada", "Mexico City, Mexico", "Buenos Aires, Argentina", "Rio de Janeiro, Brazil", "Lima, Peru",
+] as const;
 // These are autocomplete suggestions, not a closed set of supported locations.
 export type City = string;
 

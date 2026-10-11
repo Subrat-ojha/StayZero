@@ -128,7 +128,7 @@ export default function Home() {
             <div className="form-grid">
               <label className="field">Destination
                 <input list="destination-suggestions" value={city} onChange={(event) => setCity(event.target.value)} placeholder="e.g. Mysuru, India" minLength={2} maxLength={100} required />
-                <datalist id="destination-suggestions">{CITIES.map((suggestion) => <option key={suggestion} value={`${suggestion === "bangalore" ? "Bangalore" : "Hyderabad"}, India`} />)}</datalist>
+                <datalist id="destination-suggestions">{CITIES.map((suggestion) => <option key={suggestion} value={suggestion} />)}</datalist>
               </label>
               <label className="field">Nights
                 <input type="number" min="1" max="365" value={nights} onChange={(event) => setNights(Number(event.target.value))} required />

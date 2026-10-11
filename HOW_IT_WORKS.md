@@ -40,7 +40,7 @@ flowchart TD
   Q --> R[Traveller checks source and provider availability]
 ```
 
-The browser form lives in `src/app/page.tsx`. Its defaults are Bangalore, India; five nights; no skills; and any category. Destination is free text, with Bangalore and Hyderabad as autocomplete suggestions. Submitting sends JSON to `/api/rank` and then automatically requests web research for that destination. If the user submits again, previous results are cleared first.
+The browser form lives in `src/app/page.tsx`. Its defaults are Bangalore, India; five nights; no skills; and any category. Destination is free text with 90+ popular city suggestions spanning India and other countries; any other place can be typed too. Submitting sends JSON to `/api/rank` and then automatically requests saved or new web research for that destination. If the user submits again, previous results are cleared first.
 
 The ranking route validates the request and performs filtering in application code. Provider pathways are produced independently of the AI call, so they still appear when the seed is empty or the AI service is unavailable. With the current empty seed, the API returns zero curated records and the eligible provider pathways.
 
