@@ -1,3 +1,8 @@
 [build]
 command = "npm run build"
 publish = ".next"
+
+[build.environment]
+# These are public configuration values, not credentials. Keep secret scanning
+# enabled for ROUTERPLUS_API_KEY and all other values.
+SECRETS_SCAN_OMIT_KEYS = "ROUTERPLUS_BASE_URL,STAYZERO_STORAGE"

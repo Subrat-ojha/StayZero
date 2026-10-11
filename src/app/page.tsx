@@ -93,9 +93,7 @@ export default function Home() {
       const data = (await result.json()) as { results: StoredDiscovery[]; at?: string; error?: string; saved?: boolean };
       setLiveResults(data.results);
       setLiveAt(data.at ?? "");
-      if (data.error) setLiveError(data.error.includes("configured RouterPlus key")
-        ? "AI research is not configured yet. Add a RouterPlus key to search the web; saved research and provider links will still appear."
-        : "AI research is unavailable right now. Previously saved results are still shown when available.");
+      if (data.error) setLiveError(data.error);
     } catch {
       setLiveError("Deep search is unavailable right now.");
     } finally {
@@ -149,7 +147,7 @@ export default function Home() {
           {error && <p className="notice error" role="alert">{error}</p>}
           {searched && response && <>
             <div className="results-header"><div><span className="section-index">02 / YOUR OPTIONS</span><h2>Places to start</h2></div><p>{response.results.length > 0 ? `${response.results.length} curated ${response.results.length === 1 ? "option" : "options"} · ${response.ranked === "llm" ? "AI ranked" : "Rule based ranking"}` : `${response.gateways.length} provider ${response.gateways.length === 1 ? "pathway" : "pathways"}`}</p></div>
-            {response.results.length === 0 ? response.gateways.length > 0 ? <p className="curation-note">Human-reviewed stays are being added. Browse the provider directories below for current hosts and terms.</p> : <div className="empty-state"><h3>No sources match this search.</h3><p>Try “Any kind of stay” or a longer trip.</p></div> : <div className="card-list">{response.results.map((result) => <OpportunityCard key={result.opportunity.id} result={result} />)}</div>}
+            {response.results.length === 0 ? <p className="curation-note">No human-reviewed stays are listed for {city} yet. Check the unverified research results below and confirm every detail with its source.</p> : <div className="card-list">{response.results.map((result) => <OpportunityCard key={result.opportunity.id} result={result} />)}</div>}
             {response.gateways.length > 0 && <div className="gateway-section"><div className="gateway-section-heading"><span className="section-index">03 / SEARCH AT THE SOURCE</span><h2>Explore provider directories</h2><p>These are ways to find a stay, not available rooms. Open the provider to check hosts and apply.</p></div><div className="gateway-list">{response.gateways.map((gateway) => <ProviderGatewayCard key={gateway.id} gateway={gateway} />)}</div></div>}
             <div className="deep-search-section"><div><span className="section-index">04 / RESEARCH THIS DESTINATION</span><h2>Research results <small>(unverified)</small></h2><p>Public opportunity pages checked for this destination. New searches run when the research key is configured; candidates need a fresh source check.</p></div>
               {response.deepSearchEnabled && <button type="button" className="secondary-button" onClick={() => void deepSearch(true)} disabled={liveLoading}>{liveLoading ? "Researching this destination…" : "Search for more sources ↗"}</button>}

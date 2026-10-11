@@ -16,6 +16,25 @@ function parseCandidates(text: string): unknown[] {
   return Array.isArray(parsed) ? parsed : [];
 }
 
+function describeResearchFailure(error: unknown): string {
+  const message = error instanceof Error ? error.message : String(error);
+  if (/429|rate.?limit|monthly cap|quota/i.test(message)) {
+    return "RouterPlus has reached its usage limit. Check the key's credits or use a key with available credits.";
+  }
+  if (/401|403|unauthorized|invalid.*key/i.test(message)) {
+    return "RouterPlus rejected the API key. Check the key in the server environment settings.";
+  }
+  if (/abort|timeout|timed out/i.test(message)) {
+    return "The public web search timed out. Try again.";
+  }
+  if (/json|unexpected token|no results/i.test(message)) {
+    return "The research response could not be read. Try searching again.";
+  }
+  const apiKey = process.env.ROUTERPLUS_API_KEY;
+  const safeMessage = apiKey ? message.replaceAll(apiKey, "[redacted]") : message;
+  return `RouterPlus web search failed: ${safeMessage.slice(0, 180)}`;
+}
+
 export async function POST(request: Request) {
   let body: unknown;
   try {
@@ -86,13 +105,15 @@ export async function POST(request: Request) {
     await saveResearchResults(city, results, discoveredAt);
     const combined = await getResearchForLocation(city);
     return NextResponse.json({ results: combined.slice(0, 12), at: discoveredAt, saved: true });
-  } catch {
+  } catch (error) {
+    const failure = describeResearchFailure(error);
+    console.error(`[StayZero] ${failure}`);
     const fallback = await getResearchForLocation(city).catch(() => []);
     return NextResponse.json({
       results: fallback.slice(0, 12),
       at: fallback[0]?.discoveredAt,
       saved: fallback.length > 0,
-      error: fallback.length > 0 ? undefined : "AI research is unavailable right now",
+      error: failure,
     });
   }
 }

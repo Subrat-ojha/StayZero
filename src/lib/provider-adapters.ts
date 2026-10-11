@@ -156,8 +156,10 @@ const adapters: ProviderAdapter[] = [
 
 export function providerGateways(city: City, offers: OfferSkill[], preference: "any" | Category, nights: number): ProviderGateway[] {
   const vipassanaAvailable = isBangalore(city) || isHyderabad(city);
+  const freeHospitalityProviders = new Set(["bewelcome", "trustroots"]);
   const selected = adapters
-    .filter((adapter) => preference === "any" || adapter.category === preference)
+    .filter((adapter) => preference === "any" || adapter.category === preference ||
+      (preference === "free-stay" && freeHospitalityProviders.has(adapter.id)))
     .filter((adapter) => adapter.id !== "vipassana-course" || (nights >= 10 && vipassanaAvailable))
     .map((adapter) => adapter.gateway(city, offers));
   return selected.sort((a, b) => {
