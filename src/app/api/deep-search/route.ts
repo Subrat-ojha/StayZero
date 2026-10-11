@@ -138,8 +138,8 @@ export async function POST(request: Request) {
       message = await client.messages.create(
         {
           model: DEEP_SEARCH_MODEL,
-          max_tokens: 2000,
-          tools: [{ type: "web_search_20250305", name: "web_search", max_uses: 5 }],
+          max_tokens: 1200,
+          tools: [{ type: "web_search_20250305", name: "web_search", max_uses: 2 }],
           messages,
         },
         { signal: controller.signal, maxRetries: 0 },
@@ -150,7 +150,7 @@ export async function POST(request: Request) {
       while (message.stop_reason === "pause_turn" && continuation < 3) {
         messages.push({ role: "assistant", content: message.content });
         message = await client.messages.create(
-          { model: DEEP_SEARCH_MODEL, max_tokens: 2000, tools: [{ type: "web_search_20250305", name: "web_search", max_uses: 5 }], messages },
+          { model: DEEP_SEARCH_MODEL, max_tokens: 1200, tools: [{ type: "web_search_20250305", name: "web_search", max_uses: 2 }], messages },
           { signal: controller.signal, maxRetries: 0 },
         );
         continuation += 1;

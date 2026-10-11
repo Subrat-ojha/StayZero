@@ -101,7 +101,7 @@ export default function Home() {
       const unique = [...new Map(merged.map((candidate) => [`${candidate.sourceUrl}|${candidate.name.toLocaleLowerCase()}`, candidate])).values()];
       setLiveResults(unique);
       setLiveAt(data.at ?? unique[0]?.discoveredAt ?? "");
-      if (data.error) setLiveError(data.error);
+      if (data.error) setLiveError(unique.length > 0 ? `Live refresh did not finish: ${data.error} Previously saved leads are still shown; check the source before relying on any details.` : data.error);
     } catch (cause) {
       const reason = cause instanceof Error ? cause.message : "the request did not complete";
       setLiveError(`Live web research failed: ${reason} Saved source leads are still shown below; open a source or retry the search.`);
